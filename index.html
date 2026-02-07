@@ -69,5 +69,40 @@
     // Opcional: expandir la app a full screen
     Telegram.WebApp.expand();
   });
-</script></body>
+</script>
+<script>
+  // Inicializa la Mini App
+  Telegram.WebApp.ready();
+
+  let selectedMode = null;  // Guardamos el modo elegido aquí temporalmente
+
+  function selectMode(mode) {
+    selectedMode = mode;
+
+    // Cambiamos el texto del botón principal según el modo elegido
+    if (mode === 'private') {
+      Telegram.WebApp.MainButton.setText('Activar Modo Privado 🕵️');
+      Telegram.WebApp.MainButton.setParams({ color: '#1e3a5f', text_color: '#ffffff' });
+    } else if (mode === 'public') {
+      Telegram.WebApp.MainButton.setText('Activar Modo Público 🌍');
+      Telegram.WebApp.MainButton.setParams({ color: '#ff6b00', text_color: '#ffffff' });
+    }
+
+    Telegram.WebApp.MainButton.show();
+
+    // Mostramos un mensaje temporal
+    alert(`¡Modo ${mode === 'private' ? 'Privado' : 'Público'} seleccionado! Toca el botón azul abajo para confirmar.`);
+  }
+
+  // Evento del botón principal de Telegram
+  Telegram.WebApp.MainButton.onClick(() => {
+    if (selectedMode) {
+      alert(`¡Modo ${selectedMode === 'private' ? 'Privado 🕵️' : 'Público 🌍'} activado! Próximamente vamos al feed personalizado.`);
+      Telegram.WebApp.MainButton.hide();  // Ocultamos después de confirmar
+    } else {
+      alert('Primero elige un modo arriba.');
+    }
+  });
+</script>
+</body>
 </html>
