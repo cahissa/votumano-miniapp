@@ -49,5 +49,25 @@
     // Esto hace que el botón principal de Telegram aparezca si lo necesitás
     Telegram.WebApp.ready();
   </script>
-</body>
+<script>
+  // Inicializa la Mini App
+  Telegram.WebApp.ready();
+
+  // Configura el botón principal de Telegram (azul grande abajo)
+  Telegram.WebApp.MainButton.setText('¡Empezar! 🤝');
+  Telegram.WebApp.MainButton.setParams({
+    color: '#ff8c00',          // Naranja cálido de tu gradiente
+    text_color: '#ffffff'      // Blanco para contraste
+  });
+  Telegram.WebApp.MainButton.show();
+
+  // Qué pasa cuando tocan el botón principal
+  Telegram.WebApp.MainButton.onClick(() => {
+    // Por ahora un alert simple, después lo cambiamos por lógica real
+    alert('¡Modo elegido! Próximamente vamos al feed personalizado según tu elección.');
+    
+    // Opcional: expandir la app a full screen
+    Telegram.WebApp.expand();
+  });
+</script></body>
 </html>
