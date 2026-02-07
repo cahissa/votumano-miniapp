@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Votumano</title>
-  <!-- Esto carga el SDK de Telegram Mini Apps -->
+  <!-- SDK de Telegram Mini Apps -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
@@ -32,77 +32,70 @@
   </style>
 </head>
 <body>
-  <img src="https://tu-url-del-logo-aqui.png" alt="Votumano Logo"> <!-- Reemplazá con tu imagen de Ideogram después -->
+  <!-- Cambiá esta URL por la de tu logo real cuando lo subas a GitHub -->
+  <img src="https://tu-url-del-logo-aqui.png" alt="Votumano Logo">
 
   <h1>¡Bienvenido a Votumano! 🤝🌍</h1>
   <p>Estrechá manos alrededor del mundo. Elige tu modo para empezar.</p>
 
-  <button class="private-btn" onclick="Telegram.WebApp.MainButton.setText('Modo Privado 🕵️').show(); Telegram.WebApp.MainButton.onClick(() => alert('Modo Privado activado! Próximamente guardamos en la DB.'))">
+  <button class="private-btn" onclick="selectMode('private')">
     Modo Privado 🕵️
   </button>
 
-  <button class="public-btn" onclick="Telegram.WebApp.MainButton.setText('Modo Público 🌍').show(); Telegram.WebApp.MainButton.onClick(() => alert('Modo Público activado! Próximamente guardamos en la DB.'))">
+  <button class="public-btn" onclick="selectMode('public')">
     Modo Público 🌍
   </button>
 
+  <!-- Aquí va el único script: todo el JavaScript corregido -->
   <script>
-    // Esto hace que el botón principal de Telegram aparezca si lo necesitás
+    // Inicializa la Mini App (obligatorio siempre primero)
     Telegram.WebApp.ready();
-  </script>
-<script>
-  // Inicializa la Mini App
-  Telegram.WebApp.ready();
 
-  // Configura el botón principal de Telegram (azul grande abajo)
-  Telegram.WebApp.MainButton.setText('¡Empezar! 🤝');
-  Telegram.WebApp.MainButton.setParams({
-    color: '#ff8c00',          // Naranja cálido de tu gradiente
-    text_color: '#ffffff'      // Blanco para contraste
-  });
-  Telegram.WebApp.MainButton.show();
+    let selectedMode = null;  // Recordamos qué modo eligió el usuario
 
-  // Qué pasa cuando tocan el botón principal
-  Telegram.WebApp.MainButton.onClick(() => {
-    // Por ahora un alert simple, después lo cambiamos por lógica real
-    alert('¡Modo elegido! Próximamente vamos al feed personalizado según tu elección.');
-    
-    // Opcional: expandir la app a full screen
-    Telegram.WebApp.expand();
-  });
-</script>
-<script>
-  // Inicializa la Mini App
-  Telegram.WebApp.ready();
+    // Función llamada cuando tocas un botón interno
+    function selectMode(mode) {
+      selectedMode = mode;  // Guardamos 'private' o 'public'
 
-  let selectedMode = null;  // Guardamos el modo elegido aquí temporalmente
+      // Actualizamos el botón principal de Telegram (el azul abajo)
+      if (mode === 'private') {
+        Telegram.WebApp.MainButton.setText('Activar Modo Privado 🕵️');
+        Telegram.WebApp.MainButton.setParams({
+          color: '#1e3a5f',       // Azul oscuro
+          text_color: '#ffffff'
+        });
+      } else if (mode === 'public') {
+        Telegram.WebApp.MainButton.setText('Activar Modo Público 🌍');
+        Telegram.WebApp.MainButton.setParams({
+          color: '#ff6b00',       // Naranja cálido
+          text_color: '#ffffff'
+        });
+      }
 
-  function selectMode(mode) {
-    selectedMode = mode;
+      Telegram.WebApp.MainButton.show();  // Lo mostramos
 
-    // Cambiamos el texto del botón principal según el modo elegido
-    if (mode === 'private') {
-      Telegram.WebApp.MainButton.setText('Activar Modo Privado 🕵️');
-      Telegram.WebApp.MainButton.setParams({ color: '#1e3a5f', text_color: '#ffffff' });
-    } else if (mode === 'public') {
-      Telegram.WebApp.MainButton.setText('Activar Modo Público 🌍');
-      Telegram.WebApp.MainButton.setParams({ color: '#ff6b00', text_color: '#ffffff' });
+      // Feedback inmediato
+      alert(`¡Modo ${mode === 'private' ? 'Privado' : 'Público'} seleccionado! Toca el botón azul abajo para confirmar.`);
     }
 
+    // Qué pasa cuando tocan el botón principal (azul grande de Telegram)
+    Telegram.WebApp.MainButton.onClick(() => {
+      if (selectedMode) {
+        alert(`¡Modo ${selectedMode === 'private' ? 'Privado 🕵️' : 'Público 🌍'} activado! Próximamente vamos al feed personalizado.`);
+        Telegram.WebApp.MainButton.hide();  // Lo ocultamos después de confirmar
+        // Aquí después pondremos el guardado en Supabase
+      } else {
+        alert('Primero elige un modo arriba.');
+      }
+    });
+
+    // Botón principal inicial (aparece desde que carga la página)
+    Telegram.WebApp.MainButton.setText('¡Empezar! 🤝');
+    Telegram.WebApp.MainButton.setParams({
+      color: '#ff8c00',
+      text_color: '#ffffff'
+    });
     Telegram.WebApp.MainButton.show();
-
-    // Mostramos un mensaje temporal
-    alert(`¡Modo ${mode === 'private' ? 'Privado' : 'Público'} seleccionado! Toca el botón azul abajo para confirmar.`);
-  }
-
-  // Evento del botón principal de Telegram
-  Telegram.WebApp.MainButton.onClick(() => {
-    if (selectedMode) {
-      alert(`¡Modo ${selectedMode === 'private' ? 'Privado 🕵️' : 'Público 🌍'} activado! Próximamente vamos al feed personalizado.`);
-      Telegram.WebApp.MainButton.hide();  // Ocultamos después de confirmar
-    } else {
-      alert('Primero elige un modo arriba.');
-    }
-  });
-</script>
+  </script>
 </body>
 </html>
