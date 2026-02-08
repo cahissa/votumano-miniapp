@@ -53,9 +53,9 @@
     // Inicializa Telegram Mini App
     Telegram.WebApp.ready();
 
-    // Inicializa Supabase - REEMPLAZÁ LA ANON KEY CON LA TUYA REAL
+    // Inicializa Supabase
     const supabaseUrl = 'https://bsfdcfmwqozavumcucyx.supabase.co';
-    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzZmRjZm13cW96YXZ1bWN1Y3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MDI4MTcsImV4cCI6MjA4NjA3ODgxN30.Z7UGwiAOPYWkWkXE329aEH_pQNazhSEO98UnuseUufA" // ← pegá tu anon key completa aquí (la copiaste de Settings → API → anon public)
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzZmRjZm13cW96YXZ1bWN1Y3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MDI4MTcsImV4cCI6MjA4NjA3ODgxN30.Z7UGwiAOPYWkWkXE329aEH_pQNazhSEO98UnuseUufA';
 
     const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
 
