@@ -6,6 +6,8 @@
   <title>Votumano</title>
   <!-- SDK de Telegram Mini Apps -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- SDK de Supabase (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,7 +17,7 @@
       padding: 40px;
       margin: 0;
     }
-    img { width: 180px; margin: 30px 0; }
+    img { width: 220px; margin: 40px auto; display: block; border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
     h1 { font-size: 32px; margin: 20px 0; }
     p { font-size: 18px; margin: 20px 0; }
     button {
@@ -32,8 +34,8 @@
   </style>
 </head>
 <body>
-  <!-- Cambiá esta URL por la de tu logo real cuando lo subas a GitHub -->
-  <img <img src="https://raw.githubusercontent.com/cahissa/votumano-miniapp/ebba3d50a37ce5115c9a41dd4f2a0ab5252bd52a/1000584678.jpg" alt="Votumano">
+  <!-- Tu logo real -->
+  <img src="https://raw.githubusercontent.com/cahissa/votumano-miniapp/ebba3d50a37ce5115c9a41dd4f2a0ab5252bd52a/1000584678.jpg" alt="Votumano">
 
   <h1>¡Bienvenido a Votumano! 🤝🌍</h1>
   <p>Estrechá manos alrededor del mundo. Elige tu modo para empezar.</p>
@@ -46,55 +48,98 @@
     Modo Público 🌍
   </button>
 
-  <!-- Aquí va el único script: todo el JavaScript corregido -->
+  <!-- Único script con Supabase integrado -->
   <script>
-    // Inicializa la Mini App (obligatorio siempre primero)
+    // Inicializa Telegram Mini App
     Telegram.WebApp.ready();
 
-    let selectedMode = null;  // Recordamos qué modo eligió el usuario
+    // Inicializa Supabase - REEMPLAZÁ LA ANON KEY CON LA TUYA REAL
+    const supabaseUrl = 'https://bsfdcfmwqozavumcucyx.supabase.co';
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzZmRjZm13cW96YXZ1bWN1Y3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MDI4MTcsImV4cCI6MjA4NjA3ODgxN30.Z7UGwiAOPYWkWkXE329aEH_pQNazhSEO98UnuseUufA';  // ← pegá tu anon key completa aquí (la copiaste de Settings → API → anon public)
 
-    // Función llamada cuando tocas un botón interno
-    function selectMode(mode) {
-      selectedMode = mode;  // Guardamos 'private' o 'public'
+    const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-      // Actualizamos el botón principal de Telegram (el azul abajo)
-      if (mode === 'private') {
-        Telegram.WebApp.MainButton.setText('Activar Modo Privado 🕵️');
-        Telegram.WebApp.MainButton.setParams({
-          color: '#1e3a5f',       // Azul oscuro
-          text_color: '#ffffff'
-        });
-      } else if (mode === 'public') {
-        Telegram.WebApp.MainButton.setText('Activar Modo Público 🌍');
-        Telegram.WebApp.MainButton.setParams({
-          color: '#ff6b00',       // Naranja cálido
-          text_color: '#ffffff'
-        });
+    let selectedMode = null;
+    let telegramUserId = Telegram.WebApp.initDataUnsafe.user?.id;  // ID del usuario de Telegram
+
+    // Cargar modo guardado al abrir la app
+    async function loadSavedMode() {
+      if (!telegramUserId) {
+        console.log("No user ID from Telegram");
+        return;
       }
 
-      Telegram.WebApp.MainButton.show();  // Lo mostramos
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('mode')
+        .eq('user_id', telegramUserId)
+        .single();
 
-      // Feedback inmediato
-      alert(`¡Modo ${mode === 'private' ? 'Privado' : 'Público'} seleccionado! Toca el botón azul abajo para confirmar.`);
+      if (error && error.code !== 'PGRST116') {  // PGRST116 = no rows found
+        console.error('Error loading mode:', error);
+        alert('Error al cargar tu modo anterior.');
+        return;
+      }
+
+      if (data && data.mode) {
+        selectedMode = data.mode;
+        alert(`¡Modo ${data.mode === 'private' ? 'Privado 🕵️' : 'Público 🌍'} cargado de antes!`);
+      }
     }
 
-    // Qué pasa cuando tocan el botón principal (azul grande de Telegram)
-    Telegram.WebApp.MainButton.onClick(() => {
-      if (selectedMode) {
-        alert(`¡Modo ${selectedMode === 'private' ? 'Privado 🕵️' : 'Público 🌍'} activado! Próximamente vamos al feed personalizado.`);
-        Telegram.WebApp.MainButton.hide();  // Lo ocultamos después de confirmar
-        // Aquí después pondremos el guardado en Supabase
+    // Llamar carga al iniciar
+    loadSavedMode();
+
+    // Función cuando elige modo
+    function selectMode(mode) {
+      selectedMode = mode;
+
+      // Actualiza botón principal
+      if (mode === 'private') {
+        Telegram.WebApp.MainButton.setText('Activar Modo Privado 🕵️');
+        Telegram.WebApp.MainButton.setParams({ color: '#1e3a5f', text_color: '#ffffff' });
       } else {
+        Telegram.WebApp.MainButton.setText('Activar Modo Público 🌍');
+        Telegram.WebApp.MainButton.setParams({ color: '#ff6b00', text_color: '#ffffff' });
+      }
+
+      Telegram.WebApp.MainButton.show();
+
+      alert(`¡Modo ${mode === 'private' ? 'Privado' : 'Público'} seleccionado! Toca el botón azul abajo para guardar.`);
+    }
+
+    // Cuando toca el botón principal → GUARDA en Supabase
+    Telegram.WebApp.MainButton.onClick(async () => {
+      if (!selectedMode) {
         alert('Primero elige un modo arriba.');
+        return;
+      }
+
+      if (!telegramUserId) {
+        alert('No se detectó tu ID de Telegram. Intentá de nuevo.');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          user_id: telegramUserId,
+          mode: selectedMode,
+          reputation: 0
+        }, { onConflict: 'user_id' });
+
+      if (error) {
+        console.error('Error guardando:', error);
+        alert('Error al guardar. Intentá de nuevo.');
+      } else {
+        alert(`¡Modo ${selectedMode === 'private' ? 'Privado 🕵️' : 'Público 🌍'} guardado! Bienvenido al feed.`);
+        Telegram.WebApp.MainButton.hide();
       }
     });
 
-    // Botón principal inicial (aparece desde que carga la página)
+    // Botón inicial
     Telegram.WebApp.MainButton.setText('¡Empezar! 🤝');
-    Telegram.WebApp.MainButton.setParams({
-      color: '#ff8c00',
-      text_color: '#ffffff'
-    });
+    Telegram.WebApp.MainButton.setParams({ color: '#ff8c00', text_color: '#ffffff' });
     Telegram.WebApp.MainButton.show();
   </script>
 </body>
